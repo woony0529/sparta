@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💛은콩이네 집들이 방명록💛</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Single+Day&display=swap');
+
+        * {
+            font-family: 'Single Day', cursive;
+        }
+
+        .mytitle {
+
+            height: 250px;
+            color: white;
+
+            display: flex;
+            flex-direction: column;
+            /*column 세로정렬 / row 가로정렬*/
+            align-items: center;
+            /*box안에 줄을 정렬 할 때 이 네줄이 set*/
+            justify-content: center;
+
+            background-image: url('https://images.unsplash.com/photo-1511992243105-2992b3fd0410?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80');
+            background-position: center;
+            /*이 세줄은 set 항상 같이*/
+            background-size: cover;
+        }
+
+        .mytitle>button {
+            width: 150px;
+            height: 50px;
+            background-color: transparent;
+            color: white;
+            border: 1px solid white;
+            border-radius: 5px;
+
+            margin-top: 20px;
+        }
+
+        #imges{
+            display: flex;
+            flex-direction: row;
+            /*column 세로정렬 / row 가로정렬*/
+            align-items: center;
+            /*box안에 줄을 정렬 할 때 이 네줄이 set*/
+            justify-content: center;
+        }
+
+        .mycards {
+
+            width: 1200px;
+            margin: 30px auto 0px auto;
+        }
+
+        .mypostingbox {
+
+            width: 500px;
+            margin: 30px auto 0px auto;
+            padding: 20px;
+            box-shadow: 0px 0px 3px 0px blue;
+            border-radius: 5px;
+        }
+
+        .mybtn {
+
+            display: flex;
+            flex-direction: row;
+            /*column 세로정렬 / row 가로정렬*/
+            align-items: center;
+            /*box안에 줄을 정렬 할 때 이 네줄이 set*/
+            justify-content: center;
+        }
+
+        .mybtn>button {
+            margin-right: 5px;
+        }
+    </style>
+    <script type="module">
+        // Firebase SDK 라이브러리 가져오기
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+
+        // Firebase 구성 정보 설정
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+            apiKey: "AIzaSyCWmjx-e1du_fj072-rbfYNXRG_7YLD7xg",
+            authDomain: "sparta-6a935.firebaseapp.com",
+            projectId: "sparta-6a935",
+            storageBucket: "sparta-6a935.appspot.com",
+            messagingSenderId: "550688645478",
+            appId: "1:550688645478:web:4a324a2113bae7690fa8a7",
+            measurementId: "G-B28N85E5X6"
+        };
+
+
+        // Firebase 인스턴스 초기화
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        $("#postingbtn").click(async function () {
+            let names = $('#names').val();
+            let title = $('#title').val();
+            let content = $('#content').val();
+            let date = $('#date').val();
+
+            let doc = {
+                'names': names,
+                'title': title,
+                'content': content,
+                'date': date,
+
+            };
+            await addDoc(collection(db, "visit"), doc);
+            alert('저장완료!');
+            window.location.reload();
+        })
+
+        $("#savebtn").click(async function () {
+            $('#postiongbox').toggle();
+        })
+
+
+
+        let url = "http://spartacodingclub.shop/sparta_api/seoulair";
+        fetch(url).then(res => res.json()).then(data => {
+            let mise = data['RealtimeCityAir']['row'][0]['IDEX_NM']
+            $('#msg').text(mise)
+        })
+
+
+        let docs = await getDocs(collection(db, "visit"));
+        docs.forEach((doc) => {
+            let row = doc.data();
+            
+            let names = row['names'];
+            let title = row['title'];
+            let content = row['content'];
+            let date = row['date'];
+
+            let temp_html = `
+            <div class="col">
+                <div class="card h-100">
+                    
+                    <div class="card-body">
+                        <p class="card-names">${names}</p>
+                        <p class="card-title">${title}</p>
+                        <p class="card-text">${content}</p>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-body-secondary">${date}</small>
+                    </div>
+                </div>
+            </div>`;
+            $('#card').append(temp_html);
+        });
+
+
+
+        
+    </script>
+</head>
+
+<body>
+    <div class="mytitle">
+        <h1>💛은콩이네 집들이💛</h1>
+        <p>현재 서울의 미세먼지 : <span id="msg">나쁨</span></p>
+        <button id="savebtn">추억 저장하기</button>
+    </div>
+    <div id="imges">
+        <img src="C:\Users\52963\OneDrive\바탕 화면\sparta\album\KakaoTalk_20240126_211144698.jpg" alt="" width="400px" height="400px">
+        <img src="KakaoTalk_20240126_212026093_01.jpg" alt="" width="300px" height="400px">
+        <img src="KakaoTalk_20240126_212026093.jpg" alt="" width="300px" height="400px">
+    </div>
+    <div class="mypostingbox" id="postiongbox">
+        <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="names" placeholder="ઌ방문자 이름ઌ">
+            <label for="names">ઌ방문자이름ઌ</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="title" placeholder="ઌ집주인과 관계ઌ">
+            <label for="title">ઌ집주인과 관계ઌ</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="content" placeholder="ઌ방명록 한마디ઌ">
+            <label for="content">ઌ방명록 한마디ઌ</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="date" placeholder="ઌ작성 날짜ઌ">
+            <label for="date">ઌ작성 날짜ઌ</label>
+        </div>
+        <div class="mybtn">
+            <button id="postingbtn" type="button" class="btn btn-dark">기록하기</button>
+            <button type="button" class="btn btn-outline-dark">닫기</button>
+        </div>
+    </div>
+    <div class="mycards">
+        <div id="card" class="row row-cols-1 row-cols-md-4 g-4">
+            
+        </div>
+    </div>
+</body>
+
+</html>
